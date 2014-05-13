@@ -1,3 +1,7 @@
+#include <sys/epoll.h>
+#include <stdio.h>
+#include <stdlib.h>
+
 /**
  * This program is an example for CS 241 @ UIUC
  * Edited by Austin Walters for austingwalters.com 
@@ -13,9 +17,9 @@
 void child_one_func(int fd){
 
   sleep(1);
-  write(fd, "B - 2", 1);
+  write(fd, "B - 2", 5);
   sleep(1);
-  write(fd, "C - 3", 1);
+  write(fd, "C - 3", 5);
   close(fd);
 }
 
@@ -25,13 +29,13 @@ void child_one_func(int fd){
  */
 void child_two_func(int fd){
 
-  write(fd, "A - 1", 1);
+  write(fd, "A - 1", 5);
   sleep(3);
-  write(fd, "D - 2", 1);
+  write(fd, "D - 4", 5);
   close(fd);
 }
 
-void main(){
+int main(){
 
   /**
    * Create the epoll() 
@@ -68,8 +72,8 @@ void main(){
 
       close(read_fd);
 
-      if (i == 0) { one(write_fd); }
-      else if (i == 1) { two(write_fd); }
+      if (i == 0) { child_one_func(write_fd); }
+      else if (i == 1) { child_two_func(write_fd); }
 
       /* Closes child */
       exit(0);
@@ -102,9 +106,11 @@ void main(){
     ssize_t bytes = read(ev.data.fd, &str, 10);
 
     /* If the ev.data.fd has bytes added print, else wait */
-    if(bytes > 1)
+    if(bytes > 0)
       printf("Read: %s\n", str);
     else
       epoll_ctl(epoll_fd, EPOLL_CTL_DEL, ev.data.fd, NULL);
+    if(strcmp(str, "D - 4") == 0)
+      return 0;
   }
 }
