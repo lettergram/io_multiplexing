@@ -1,3 +1,8 @@
+/**
+ * Written by Austin Walters 5/13/2014
+ * For I/O Multiplexing example on austingwalters.com
+ */
+
 #include <sys/event.h>
 #include <sys/time.h> 
 #include <fcntl.h>

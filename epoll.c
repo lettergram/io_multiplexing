@@ -8,29 +8,28 @@
  * Program is a simple epoll example - only runs on linux
  */
 
-
 /**
  * Given the file descriptor this function,
- * waits 1 second, writes "B," waits 1 second
- * then writes "C"
+ * writes A, waits 2 second, writes "c,"
  */
 void child_one_func(int fd){
 
-  sleep(1);
-  write(fd, "B - 2", 5);
-  sleep(1);
+  write(fd, "A - 1", 5);
+  sleep(2);
   write(fd, "C - 3", 5);
   close(fd);
 }
 
 /**
  * Given the file descriptor this function,
- * writes "A" waits 3seconds then writes "D"
+ * Waits 1 second, writes "B", Waits 2 seconds,
+ * then writes "D"
  */
 void child_two_func(int fd){
 
-  write(fd, "A - 1", 5);
-  sleep(3);
+  sleep(1);
+  write(fd, "B - 2", 5);
+  sleep(2);
   write(fd, "D - 4", 5);
   close(fd);
 }
