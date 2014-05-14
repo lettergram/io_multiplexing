@@ -6,26 +6,26 @@
 
 /**
  * Given the file descriptor this function,
- * waits 1 second, writes "B," waits 1 second
- * then writes "C"
+ * writes A, waits 2 second, writes "c,"
  */
 void child_one_func(int fd){
 
-  sleep(1);
-  write(fd, "B - 2", 5);
-  sleep(1);
+  write(fd, "A - 1", 5);
+  sleep(2);
   write(fd, "C - 3", 5);
   close(fd);
 }
 
 /**
  * Given the file descriptor this function,
- * writes "A" waits 3seconds then writes "D"
+ * Waits 1 second, writes "B", Waits 2 seconds,
+ * then writes "D"
  */
 void child_two_func(int fd){
 
-  write(fd, "A - 1", 5);
-  sleep(3);
+  sleep(1);
+  write(fd, "B - 2", 5);
+  sleep(2);
   write(fd, "D - 4", 5);
   close(fd);
 }
@@ -67,23 +67,25 @@ int main(){
       close(write_fd);
     }
 
-    EV_SET(&chlist[i], read_fd, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, 0);
+    /* Set listener to read */
+    EV_SET(&chlist[i], read_fd, EVFILT_READ, EV_ADD, 0, 0, NULL);
   }
 
   char str[10];
   while(1){
-    
-    if(kevent(kq, chlist, 1, evlist, 1, NULL) > 0){
-      for(i = 0; i < 2; i++){
-	ssize_t bytes = read(chlist[i].ident, &str, 10);
-	if(bytes > 0)
-	  printf("Read: %s\n", str);
-	
-	if(strcmp(str, "D - 4") == 0)
-	  return 0;
-      }
+    /* Grab any events */
+    kevent(kq, chlist, 1, evlist, 2, NULL);
+    for(i = 0; i < 2; i++){
+      ssize_t bytes = read(chlist[i].ident, &str, 10);
+      if(bytes > 0)
+	printf("Read: %s\n", str);
+      
+      if(strcmp(str, "D - 4") == 0)
+	return 0;
     }
   }
+  free(chlist);
+  free(evlist);
   close(kq);
   return 0;
 }
