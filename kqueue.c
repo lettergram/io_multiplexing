@@ -41,7 +41,7 @@ int main(){
   
   /* Double-array of fds for the pipe() */
   int **fds = malloc(2 * sizeof(int *));
-  struct kevent *evlist = malloc(sizeof(struct kevent) * 2);
+  struct kevent *evlist = malloc(sizeof(struct kevent));
   struct kevent *chlist = malloc(sizeof(struct kevent) * 2);
 
   int i;
@@ -79,7 +79,7 @@ int main(){
   char str[10];
   while(1){
     /* Grab any events */
-    kevent(kq, chlist, 1, evlist, 2, NULL);
+    kevent(kq, chlist, 1, evlist, 1, NULL);
     for(i = 0; i < 2; i++){
       ssize_t bytes = read(chlist[i].ident, &str, 10);
       if(bytes > 0)
